@@ -1,0 +1,13 @@
+AuthUserFile "/home/velj/public_html/administrator/.htpasswd"
+AuthName "Restricted Area"
+AuthType Basic
+require valid-user
+
+RewriteEngine On
+RewriteRule \.htpasswd$ - [F,L]
+
+# Disable the CSP's for the backend
+<IfModule mod_headers.c>
+	Header always set Content-Security-Policy-Report-Only ""
+	Header always set Content-Security-Policy ""
+</IfModule>
