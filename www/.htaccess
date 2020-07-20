@@ -1,6 +1,59 @@
 RewriteEngine On
-#Redirect 301 /sitemap.xml https://vel.joomla.org/index.php?option=com_jmap&view=sitemap&format=xml
+<IfModule mod_headers.c>
+Header always set X-Content-Type-Options "nosniff"
+</IfModule>
+
 RewriteBase /
+
+# Migration redirects
+# Feed
+Redirect 301 /vel-feed https://extensions.joomla.org/vulnerable-extensions/json-feed
+Redirect 301 /component/vel/?format=json https://extensions.joomla.org/index.php?option=com_vel&format=json
+Redirect 301 /component/vel/?format=json&task=verify https://extensions.joomla.org/index.php?option=com_vel&format=json&task=verify
+Redirect 301 /feed https://extensions.joomla.org/vel-feed
+Redirect 301 /verify https://extensions.joomla.org/vel-verify
+
+# Abandonware
+Redirect 301 /component/rsform/form/9-abandonware https://extensions.joomla.org/vulnerable-extensions/submit-abandonware
+
+# Update form
+Redirect 301 /update-form https://extensions.joomla.org/vulnerable-extensions/submit-an-update
+# submit form
+Redirect 301 /submit-vel https://extensions.joomla.org/vulnerable-extensions/submit-a-report
+# Search form
+Redirect 301 /search-matrix https://extensions.joomla.org/vulnerable-extensions/vulnerable
+
+# Live vel need regex
+# Redirect 301 /live-vel & https://vel.joomla.org/vel-blog/2290-hwdpplayer-4-2-sql-injection
+# Too: https://extensions.joomla.org/vulnerable-extensions/vulnerable/ & https://extensions.joomla.org/vulnerable-extensions/vulnerable/hwdpplayer-4-2-sql-injection/
+RewriteCond %{REQUEST_URI} ^/vel-blog/[0-9]+-(.+)$
+RewriteRule ^vel-blog/[0-9]+-(.+)$ https://extensions.joomla.org/vulnerable-extensions/vulnerable/$1 [L,R=301,NC]
+#Redirect 301 /vel-blog https://extensions.joomla.org/vulnerable-extensions/vulnerable
+#Redirect 301 /live-vel https://extensions.joomla.org/vulnerable-extensions/vulnerable
+
+# Resolved needs regex
+# https://vel.joomla.org/resolved & https://vel.joomla.org/resolved/2304-xcloner-3-53-other
+# Too https://extensions.joomla.org/vulnerable-extensions/resolved/ & https://extensions.joomla.org/vulnerable-extensions/resolved/xcloner-3-53-other/
+RewriteCond %{REQUEST_URI} ^/resolved/[0-9]+-(.+)$
+RewriteRule ^resolved/[0-9]+-(.+)$ https://extensions.joomla.org/vulnerable-extensions/resolved/$1 [L,R=301,NC]
+#Redirect 301 /resolved https://extensions.joomla.org/vulnerable-extensions/resolved
+
+# Abandoned needs regex
+# https://vel.joomla.org/abandonware & https://vel.joomla.org/abandonware/2298-acysms
+# Too https://extensions.joomla.org/vulnerable-extensions/abandoned/ & https://extensions.joomla.org/vulnerable-extensions/abandoned/acysms
+RewriteCond %{REQUEST_URI} ^/abandonware/[0-9]+-(.+)$
+RewriteRule ^abandonware/[0-9]+-(.+)$ https://extensions.joomla.org/vulnerable-extensions/abandoned/$1 [L,R=301,NC]
+#Redirect 301 /abandonware https://extensions.joomla.org/vulnerable-extensions/abandoned
+
+# Articles needs https://vel.joomla.org/articles/* to https://extensions.joomla.org/vulnerable-extensions/about
+# individual articles https://vel.joomla.org/articles/2211-recent-multiple-exploit-reports to https://extensions.joomla.org/vulnerable-extensions/about
+RewriteCond %{REQUEST_URI} ^/articles/[0-9]+-(.+)$
+RewriteRule ^articles/[0-9]+-(.+)$ https://extensions.joomla.org/vulnerable-extensions/about [L,R=301,NC]
+#Redirect 301 /articles https://extensions.joomla.org/vulnerable-extensions/about
+
+# Home page
+RewriteRule (.*) https://extensions.joomla.org/$1 [R=301,L]
+
 #Rochen Implemented Blocks
 #Bad bots (~10-15 hits/sec.)
 RewriteCond %{HTTP:X-FORWARDED-FOR} ^85\.95\.246\.57$ [OR]
@@ -316,7 +369,7 @@ RewriteRule .* - [F]
 RewriteRule ^(htaccess\.txt|configuration\.php-dist|php\.ini)$ - [F]
 ## Protect against clickjacking
 <IfModule mod_headers.c>
-Header always append X-Frame-Options SAMEORIGIN
+Header always set X-Frame-Options SAMEORIGIN
 # The `X-Frame-Options` response header should be send only for
 # HTML documents and not for the other resources.
 <FilesMatch "\.(appcache|atom|bbaw|bmp|crx|css|cur|eot|f4[abpv]|flv|geojson|gif|htc|ico|jpe?g|js|json(ld)?|m4[av]|manifest|map|mp4|oex|og[agv]|opus|otf|pdf|png|rdf|rss|safariextz|svgz?|swf|topojson|tt[cf]|txt|vcard|vcf|vtt|webapp|web[mp]|woff2?|xloc|xml|xpi)$">
@@ -352,3 +405,19 @@ RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [R,L]
 Header set Strict-Transport-Security "max-age=31536000" env=HTTPS
 </ifModule>
 ## End - HTTPS-only redirect
+
+###########################################
+# =========== Security Headers ============
+<IfModule mod_headers.c>
+	# X-XSS-Protection
+	#Header always set X-XSS-Protection "1; mode=block"
+	# X-Frame-Options
+	Header always set X-Frame-Options SAMEORIGIN
+	# X-Content-Type nosniff
+	#Header always set X-Content-Type-Options nosniff
+	# Referrer-Policy
+	Header always set Referrer-Policy "no-referrer-when-downgrade"
+	# Strict-Transport-Security
+	#Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
+</IfModule>
+###########################################
